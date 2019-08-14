@@ -10,10 +10,54 @@
             <field name="website" position="after">
                 <field name="ape_id" context="{'partner_category_display': 'short'}"
                     attrs="{'invisible': [('is_company', '=', False)]}"
-                    domain="[('parent_id', 'child_of', %(l10n_eu_nace.nace_root)d)]"
+                    domain="[('parent_id', 'child_of', %(l10n_eu_nace.nace_root)d), ('child_ids', '=', False)]"
                     options='{"always_reload": True}'/>
             </field>
         </field>
     </record>
+
+   <record id="view_res_partner_category_filter" model="ir.ui.view">
+        <field name="name">res.partner.category.filter</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Search Tag">
+               <filter string="APE codes" name="no_childs" domain="[('child_ids', '=', False)]"/>
+               <filter string="No APE codes" name="no_nace_parent" domain="['!',('parent_id', 'child_of', %(l10n_eu_nace.nace_root)d)]"/>
+           </search>
+        </field>
+    </record>
+
+    <record id="action_ape_category_form" model="ir.actions.act_window">
+        <field name="name">Contact APE tags</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner.category</field>
+        <field name="view_type">form</field>
+        <field name="search_view_id" ref="l10n_fr_naf_ape.view_res_partner_category_filter"/>
+        <field name="domain" eval="[('parent_id', 'child_of', [ref('l10n_eu_nace.nace_root')])]"/>
+        <field name="context">{'search_default_no_childs': 1}</field>
+    </record>
+
+
+    <record id="base.action_partner_category_form" model="ir.actions.act_window">
+        <field name="name">Contact Tags</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner.category</field>
+        <field name="view_type">form</field>
+        <field name="search_view_id" ref="l10n_fr_naf_ape.view_res_partner_category_filter"/>
+        <field name="context">{'search_default_no_nace_parent': 1}</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new contact tag
+          </p><p>
+            Manage contact tags to better classify them for tracking and analysis purposes.
+          </p>
+        </field>
+    </record>
+
+
+    <menuitem id="menu_ape_category_form"
+        action="l10n_fr_naf_ape.action_ape_category_form"
+        name="APE Codes"
+        parent="contacts.res_partner_menu_config"/>
 
 </odoo>
